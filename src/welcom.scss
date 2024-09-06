@@ -1,0 +1,11 @@
+$welcomHeight: 400px;
+
+.welcom {
+    width: 100%;
+    height: $welcomHeight;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: cornsilk;
+    font-size: 50px;
+}

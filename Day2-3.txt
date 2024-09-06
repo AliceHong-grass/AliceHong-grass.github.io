@@ -1,0 +1,95 @@
+Webpack 套件管理
+1. 安裝 node.js (安裝好之後 VS code 須重啟)(就是 javascript 的執行引擎)
+2. 使用 NPM (node package management) 
+    2.1 初始化專案：npm init -y
+        => 專案描述檔 package.json
+    2.2 安裝第三方套件：npm insatll <套件名稱>
+                       npm insatll <套件名稱> --save-dev (僅開發時需要的套件)
+        => 套件會被下載到 node_models 資料夾，並將套件版本紀錄於 package.json
+    2.3. 解除安裝第三方套件：npm uninsatll <套件名稱>
+3. Webpack 專案結構
+    - src (sourc) 原始程式碼的位置
+    - dist 目的程式碼的位置
+    3.1 使用 Webpack 打包程式碼: npx webpack
+        => 打包後的程式碼 (main.js) 會放在 dist 資料夾中
+    3.2 在 dist 資料夾中建立 html 檔案，並引用 main.js
+        <script src="main.js"></script>
+        再開啟 html 檔案即可瀏覽網頁
+
+js 模組
+1. 引用其他模組 
+    1.1 import <輸出物> from <模組路徑>
+    1.2 import {輸出物1, 輸出物2, .....} from <模組路徑>
+2. 輸出物可以是參數、函式，需 export
+    2.1 export default <輸出物> 預設輸出
+    2.2 export {輸出物1, 輸出物2, .....} 多個輸出
+3. export default {輸出物 1 key: 輸出物1, 輸出物 2 key: 輸出物2, .....}
+    import <自定義名稱> from <模組路徑>
+    使用方式：<自定義名稱>.<輸出物 1 key>
+
+原始網頁 -> 管理 javascript -> 管理 css 
+
+建立 webpack 設定檔 webpack.config.js (預設如下)
+const path = require('path');
+module.exports = {
+    entry: './src/index.js',                            // 程式進入點 
+    output: {
+        filename: 'main.js',                            // 打包後的程式碼
+        path: path.resolve(__dirname, 'dist'),          // 打包後放在 dist 資料夾中
+    }
+};
+
+css 引用
+2. npm install --save-dev style-loader css-loader
+3. webpack.config.js 改為
+    const path = require('path');
+    module.exports = {
+        entry: './src/index.js',                            // 程式進入點 
+        output: {
+            filename: 'main.js',                            // 打包後的程式碼
+            path: path.resolve(__dirname, 'dist'),          // 打包後放在 dist 資料夾中
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.css$/i,                        // 若路徑為此
+                    use: ['style-loader', 'css-loader'],    // 則使用此兩個載入器
+                },
+            ],
+        },
+    };
+
+scss
+2. https://webpack.js.org/loaders/ => npm install sass-loader sass webpack --save-dev
+3. webpack.config.js 改為
+    const path = require('path');
+    module.exports = {
+        entry: './src/index.js',                            // 程式進入點 
+        output: {
+            filename: 'main.js',                            // 打包後的程式碼
+            path: path.resolve(__dirname, 'dist'),          // 打包後放在 dist 資料夾中
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.css$/i,                        // 若路徑為此 (.css)
+                    use: ['style-loader', 'css-loader'],    // 則使用此兩個載入器
+                },
+                {
+                    test: /\.s[ac]ss$/i,                    // (.scss 或 .sass)
+                    use: ["style-loader", "css-loader", "sass-loader"],
+                },
+            ],
+        },
+    };
+
+切割 html
+1. 不要 html => 用 javascript createElement/appendChild 動態產生 DOM
+2. javascript 分配到各個項目的 JS 中
+3. 修正各種先前使用的 getElement、querySelecter、addEventListener
+                                        => costomCreateElement
+4. export default <Element 物件>;       => export renderElement function
+5. 在 index.js 引用 Element 物件         => DOM render
+
+=====>> react/vue
+

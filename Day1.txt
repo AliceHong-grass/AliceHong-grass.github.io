@@ -1,0 +1,182 @@
+learn：資料、變數、運算符號、流程控制、函式、物件
+
+---------------------------------------------------------------------------
+函式 function
+1. function add(a, b){ return a+b; }
+2. let add = function(a,b){ return a+b; }
+3. let add = (a,b) => { return a+b; }       // 箭頭函示     // {} 完整的函式區塊
+4. let add = (a,b) => (a+b);                                // () 僅回傳值
+5. (function(a,b){console.log(a+b)})(3,4);  // 僅當下執行一次 (匿名函示)
+
+---------------------------------------------------------------------------
+物件 object
+let data = {x:3,y:4};
+1. console.log(data.x+data.y);
+2. console.log(data["x"]+data["y"]);
+淺複製
+let data1 = data;       // 兩個名字指向了相同的記憶體位置
+data1.x = 5;
+console.log(data.x);    // 5
+深複製
+let data2 = {...data};
+data2.x = 5;
+console.log(data.x);    // 3
+
+---------------------------------------------------------------------------
+延遲一段時間後再做加法
+1. (X)
+    function delayAdd(a, b, ms){ 
+        window.setTimeout(function(){   // 排程 (Asynchronous 非同步)
+            return a+b;     // return 的回傳值被 window 內部接收，而非 delayAdd 的 return 結果
+        }, ms);
+    }
+    let resault = delayAdd(3,4, 3000)
+    console.log(resault);   // undifine
+2. (X)
+    function delayAdd(a, b, ms){ 
+        window.setTimeout(function(){
+            return a+b;     // 等待 ms 後才觸發，不會因為 delayAdd return 而中斷
+        }, ms);
+        return a+b;         // 不等待直接執行
+    }
+    let resault = delayAdd(3,4, 3000)
+    console.log(resault);   // 7 但沒有 delay
+3. callback 把函式當作參數
+    function delayAdd(a, b, ms, callback){ 
+        window.setTimeout(function(){   
+            callback(a+b);
+        }, ms);
+    }
+    delayAdd(3, 4, 3000, function(resault){
+        console.log(resault);
+    });
+
+---------------------------------------------------------------------------
+callback 回呼函示
+function delayAdd(a, b, ms, callback){ 
+    window.setTimeout(function(){   
+        callback(a+b);
+    }, ms);
+}
+1. reload 後過 3 秒顯示 7；reload 後過 2 秒顯示 9 
+    => 先出現 9 再出現 7
+    delayAdd(3, 4, 3000, function(resault){
+        console.log(resault);
+    });
+    delayAdd(5, 4, 2000, function(resault){
+        console.log(resault);
+    });
+2. reload 後過 3 秒顯示 7，再過 2 秒顯示 9 
+    => reload 後過 5 秒顯示 9 
+    => 先出現 7 再出現 9
+    delayAdd(3, 4, 3000, function(resault){
+        console.log(resault);
+        delayAdd(2, resault, 2000, function(resault){
+            console.log(resault);
+        });
+    });
+    以此類推 2秒印出7，再3秒印出11，再1秒印出1
+    delayAdd(3, 4, 2000, function(resault){
+        console.log(resault);
+        delayAdd(5, 6, 3000, function(resault){
+            console.log(resault);
+            delayAdd(1, 2, 1000, function(resault){
+                console.log(resault);
+            });
+        });
+    });
+
+---------------------------------------------------------------------------
+Promise
+1. 先出現 1，再出現 2
+    let P = new Promise(function(resolve, reject){
+        console.log("1");
+    });
+    console.log("2");
+2. 先出現輸入正整數，再出現 2，再出現 ok/error
+    let P = new Promise(function(resolve, reject){
+        let n = prompt("輸入正整數", "");
+        if(n>0) resolve();
+        else reject();
+    }).then(function(){         // Asynchronous 非同步
+        console.log("ok");
+    }).catch(function(){        // Asynchronous 非同步
+        console.log("error");
+    });
+    console.log("2");
+3. 先出現輸入正整數，再出現 2，再出現 ok/error，再出現 promise2
+    let P = new Promise(function(resolve, reject){
+        let n = prompt("輸入正整數", "");
+        if(n>0) resolve();
+        else reject();
+    }).then(function(){         // Asynchronous 非同步
+        console.log("ok");
+        return new Promise(function(resolve){   // 接到下一個 then
+            resolve();
+        });
+    }).then(function(){         // Asynchronous 非同步
+        console.log("promise2");
+    }).catch(function(){        // Asynchronous 非同步
+        console.log("error");
+    });
+    console.log("2");
+4. 延遲一段時間後再做加法
+    (1) 方法 1
+    function delayAdd(a, b, ms){ 
+        let P = new Promise(function(resolve){
+            window.setTimeout(function(){
+                    resolve(a+b);
+                }, ms);
+        }).then(function(resault){
+            console.log(resault);
+        });
+    }
+    delayAdd(5, 6, 3000);
+    (2) 方法 2
+    function delayAdd(a, b, ms){ 
+        return new Promise(function(resolve){
+            window.setTimeout(function(){
+                resolve(a+b);
+            }, ms);
+        });
+    }
+    delayAdd(5, 6, 3000).then(function(resault){
+        console.log(resault);
+    });
+5. 2秒印出7，再3秒印出11，再1秒印出1
+    function delayAdd(a, b, ms){ 
+        return new Promise(function(resolve){
+            window.setTimeout(function(){
+                resolve(a+b);
+            }, ms);
+        });
+    }
+    delayAdd(3, 4, 2000).then(function(resault){
+        console.log(resault);
+        return delayAdd(5, 6, 3000);
+    }).then(function(resault){
+        console.log(resault);
+        return delayAdd(1, 2, 1000);
+    }).then(function(resault){
+        console.log(resault);
+    });
+
+---------------------------------------------------------------------------
+async/await
+function delayAdd(a, b, ms){ 
+    return new Promise(function(resolve){
+        window.setTimeout(function(){
+            resolve(a+b);
+        }, ms);
+    });
+}
+async function run(){
+    // resault 為 Promise resolve 觸發後進到 then 時 function 的參數 resault
+    let resault = await delayAdd(3, 4, 2000);
+    console.log(resault);
+    resault = await delayAdd(5, 6, 3000);
+    console.log(resault);
+    resault = await delayAdd(1, 2, 1000);
+    console.log(resault);
+}
+run();
